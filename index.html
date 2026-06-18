@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>剛好學-整合版課堂互動整合工具(公開測試版)</title>
+<title>剛好學-整合版課堂互動整合工具</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -70,7 +70,7 @@ body.stu-fullscreen #shell-topbar{display:none}
 body.stu-fullscreen #shell-module{padding:8px}
 
 /* ===== 模式分頁 ===== */
-#shell-tabs{flex:0 0 auto; display:flex; gap:8px; padding:8px 16px 0; z-index:40}
+#shell-tabs{flex:0 0 auto; display:flex; align-items:center; gap:8px; padding:8px 16px 0; z-index:40}
 .shell-tab{padding:9px 22px; border-radius:12px 12px 0 0; font-weight:800; font-size:14.5px; color:var(--ink2);
   background:rgba(255,255,255,.4); border:1px solid rgba(148,163,184,.25); border-bottom:none; transition:all .2s}
 .shell-tab.active{color:#fff; background:linear-gradient(135deg,var(--ta),var(--tb)); box-shadow:0 -2px 12px rgba(30,41,59,.12)}
@@ -298,17 +298,18 @@ canvas.stu-draw{width:100%; background:#fff; border-radius:14px; border:2px soli
   <div id="shell-room-chip" class="chip hidden" title="查看教室資訊">🏫 <span class="code" id="shell-room-code"></span></div>
   <div class="spacer"></div>
   <span id="shell-conn-dot" title="Firebase 連線狀態"></span>
-  <span id="shell-online-chip" class="chip hidden" style="font-size:12.5px">👥 <span id="shell-online-n" class="num">0</span></span>
-  <button class="btn btn-ghost btn-sm hidden" id="shell-btn-leave">🚪 下課 / 離開</button>
   <button class="btn btn-ghost btn-sm" id="shell-btn-settings">⚙ 設定</button>
   <button class="btn btn-ghost btn-sm" id="shell-btn-help">?</button>
 </header>
 
-<!-- 模式分頁（教師） -->
+<!-- 模式分頁（教師）；右側放置課堂人數與下課按鈕，與分頁同高 -->
 <nav id="shell-tabs" class="hidden">
   <button class="shell-tab active" data-m="tools">🧩 互動工具</button>
   <button class="shell-tab" data-m="whiteboard">🖌️ 白板</button>
   <button class="shell-tab" data-m="presentation">📽️ 簡報</button>
+  <span class="spacer" style="flex:1"></span>
+  <span id="shell-online-chip" class="chip hidden" style="font-size:12.5px">👥 <span id="shell-online-n" class="num">0</span></span>
+  <button class="btn btn-danger btn-sm hidden" id="shell-btn-leave">🚪 下課 / 離開</button>
 </nav>
 
 <!-- 主內容 -->
@@ -786,6 +787,12 @@ const RoomService = {
     return s;
   },
   roomsCol(){ return collection(State.db, "artifacts", ConfigService.appId(), "public", "data", "rooms"); },
+  /** 輕量雜湊（djb2）：避免在資料庫存明文教室密碼 */
+  hashPass(s){
+    s=String(s||""); let h=5381;
+    for(let i=0;i<s.length;i++){ h=(((h<<5)+h)+s.charCodeAt(i))>>>0; }
+    return "p"+h.toString(36);
+  },
   /** 列出尚未下課（仍存在）的教室 */
   async listRooms(){
     const snap=await getDocs(this.roomsCol());
@@ -822,14 +829,16 @@ const RoomService = {
     }
     return id;
   },
-  async createOrJoin(code, asTeacher){
+  async createOrJoin(code, asTeacher, opts={}){
     State.roomCode=code;
     const ref=Fire.roomRootDoc();
     const withTimeout=(p,ms)=>Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error("連線逾時——請檢查網路與 Firebase 設定（含安全規則）")),ms))]);
     const snap=await withTimeout(getDoc(ref), 12000);
     if(!snap.exists()){
       if(!asTeacher) throw new Error("找不到此教室代碼，請確認後再試");
-      await withTimeout(setDoc(ref, {currentMode:"tools", createdAt:serverTimestamp()}), 12000);
+      const meta={currentMode:"tools", createdAt:serverTimestamp()};
+      if(opts.passHash) meta.teacherPass=opts.passHash;   // 設定老師再次進入用的密碼（雜湊）
+      await withTimeout(setDoc(ref, meta), 12000);
       State.currentMode="tools";
     }else{
       State.currentMode=snap.data().currentMode||"tools";
@@ -1030,12 +1039,31 @@ const Shell = {
   },
 
   /** 進入指定教室（教師） */
-  async enterRoomAsTeacher(code, name){
+  async enterRoomAsTeacher(code, name, passHash){
     State.role="teacher"; State.name=name||"老師";
     Identity.save({...Identity.load(), teacherName:State.name, lastRoom:code});
     UI.closeModal();
-    try{ await RoomService.createOrJoin(code, true); this.enterApp(); }
+    try{ await RoomService.createOrJoin(code, true, {passHash:passHash||null}); this.enterApp(); }
     catch(e){ UI.toast(e.message||"進入教室失敗","err"); }
+  },
+
+  /** 進入既有教室前的密碼驗證：無密碼直接放行，有密碼則彈窗輸入比對 */
+  async verifyRoomPass(room){
+    if(!room || !room.teacherPass) return true;
+    const pw=await new Promise(res=>{
+      const box=UI.modal(`<h3 style="margin:0 0 10px;font-weight:900">🔐 課堂密碼</h3>
+        <p class="hint" style="margin:0 0 8px">教室 <b class="num">${esc(room.code)}</b> 已設定密碼，請輸入以再次進入。</p>
+        <input class="field" id="rpw" type="password" autocomplete="off">
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px">
+          <button class="btn btn-ghost" id="rpw-no">取消</button><button class="btn btn-grad" id="rpw-yes">進入</button></div>`);
+      const inp=box.querySelector("#rpw"); inp.focus();
+      inp.onkeydown=e=>{ if(e.key==="Enter") box.querySelector("#rpw-yes").click(); };
+      box.querySelector("#rpw-no").onclick=()=>{ UI.closeModal(); res(null); };
+      box.querySelector("#rpw-yes").onclick=()=>{ const v=inp.value; UI.closeModal(); res(v); };
+    });
+    if(pw===null) return false;
+    if(RoomService.hashPass(pw)!==room.teacherPass){ UI.toast("課堂密碼錯誤","err"); return false; }
+    return true;
   },
 
   /** 建立 / 自訂教室代碼進入 */
@@ -1047,6 +1075,9 @@ const Shell = {
       <input class="field" id="e-code" maxlength="20" value="" placeholder="例如 ABC123">
       <label class="lbl">你的顯示名稱</label>
       <input class="field" id="e-name" maxlength="12" value="${esc(saved.teacherName||"老師")}">
+      <label class="lbl">課堂密碼（選填，留空則暫離後可直接進入）</label>
+      <input class="field" id="e-pass" type="password" maxlength="20" autocomplete="new-password" placeholder="設定後，老師暫離再進入此教室需輸入">
+      <p class="hint" style="margin:6px 0 0">密碼只用於「老師暫離課堂後再次進入」時的驗證；學生端僅需教室代碼即可加入，不受密碼影響。</p>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px">
         <button class="btn btn-ghost" id="e-cancel">取消</button>
         <button class="btn btn-grad" id="e-go">建立並進入</button>
@@ -1055,8 +1086,9 @@ const Shell = {
     box.querySelector("#e-go").onclick=()=>{
       let code=box.querySelector("#e-code").value.trim().replace(/[^A-Za-z0-9]/g,"");
       const name=box.querySelector("#e-name").value.trim()||"老師";
+      const pass=box.querySelector("#e-pass").value;
       if(!code) code=RoomService.genCode();
-      this.enterRoomAsTeacher(code, name);
+      this.enterRoomAsTeacher(code, name, pass?RoomService.hashPass(pass):null);
     };
   },
 
@@ -1070,7 +1102,7 @@ const Shell = {
       <input class="field" id="tp-name" maxlength="12" value="${esc(saved.teacherName||"老師")}">
       <div id="tp-list" style="max-height:42vh;overflow:auto;margin-top:10px">${rooms.map(r=>`
         <div class="resp-item" style="gap:8px">
-          <span class="nm num" style="letter-spacing:2px;color:var(--tools-a)">${esc(r.code)}</span>
+          <span class="nm num" style="letter-spacing:2px;color:var(--tools-a)">${esc(r.code)}${r.teacherPass?' <span title="已設定課堂密碼" style="font-size:13px">🔐</span>':''}</span>
           <span class="val" style="font-size:12px;color:var(--ink2)">${r.currentMode?(MODE_INFO[r.currentMode]?.icon+" "+MODE_INFO[r.currentMode]?.name):""}</span>
           <button class="btn btn-grad btn-sm" data-enter="${esc(r.code)}">進入</button>
           <button class="btn btn-danger btn-sm" data-close="${esc(r.code)}">下課</button>
@@ -1082,7 +1114,12 @@ const Shell = {
     const getName=()=>box.querySelector("#tp-name").value.trim()||"老師";
     box.querySelector("#tp-cancel").onclick=()=>UI.closeModal();
     box.querySelector("#tp-new").onclick=()=>this.teacherNewRoomDialog();
-    box.querySelectorAll("[data-enter]").forEach(b=>b.onclick=()=>this.enterRoomAsTeacher(b.dataset.enter, getName()));
+    box.querySelectorAll("[data-enter]").forEach(b=>b.onclick=async()=>{
+      const r=rooms.find(x=>x.code===b.dataset.enter);
+      const name=getName();  // 先取姓名：密碼彈窗會覆寫此 modal，之後 #tp-name 將不存在
+      if(!await this.verifyRoomPass(r)) return;
+      this.enterRoomAsTeacher(b.dataset.enter, name);
+    });
     box.querySelectorAll("[data-close]").forEach(b=>b.onclick=async()=>{
       const code=b.dataset.close;
       if(!await UI.confirm(`確定下課並清空教室「${code}」的雲端資料？此動作無法復原。`,"🏁 下課")) return;
@@ -1356,12 +1393,14 @@ const Shell = {
     const box=UI.modal(`
       <h3 style="margin:0 0 6px;font-weight:900">🚪 下課 / 暫離課堂</h3>
       <p class="hint" style="margin:0 0 14px">教室代碼：<b class="num">${esc(State.roomCode)}</b></p>
-      <button class="role-btn" id="lv-pause" style="background:linear-gradient(135deg,#3B82F6,#06B6D4)">
-        <span class="ic">⏸️</span><span>暫離課堂<div class="d">保留所有資料，之後用同一教室代碼回來繼續上課</div></span>
-      </button>
-      <button class="role-btn" id="lv-end" style="background:linear-gradient(135deg,#EF4444,#B91C1C)">
-        <span class="ic">🏁</span><span>下課結束課程<div class="d">清空本教室在雲端資料庫的全部資料（學生端會收到下課通知）</div></span>
-      </button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin:4px 0">
+        <button class="role-btn" id="lv-pause" style="background:linear-gradient(135deg,#3B82F6,#06B6D4);width:100%;max-width:420px;flex:none">
+          <span class="ic">⏸️</span><span>暫離課堂<div class="d">保留所有資料，之後用同一教室代碼回來繼續上課</div></span>
+        </button>
+        <button class="role-btn" id="lv-end" style="background:linear-gradient(135deg,#EF4444,#B91C1C);width:100%;max-width:420px;flex:none">
+          <span class="ic">🏁</span><span>下課結束課程<div class="d">清空本教室在雲端資料庫的全部資料（學生端會收到下課通知）</div></span>
+        </button>
+      </div>
       <div style="text-align:right;margin-top:6px"><button class="btn btn-ghost" id="lv-cancel">取消</button></div>`);
     box.querySelector("#lv-cancel").onclick=()=>UI.closeModal();
     box.querySelector("#lv-pause").onclick=async()=>{
