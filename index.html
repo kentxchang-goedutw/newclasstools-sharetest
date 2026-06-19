@@ -912,11 +912,150 @@
         #statistics-modal-content {
             /* Changed ID to match HTML */
             padding: 1rem;
-            max-width: 600px;
+            max-width: 680px;
             width: 100%;
             display: flex;
             flex-direction: column;
             gap: 1rem;
+        }
+
+        /* Modern horizontal bar chart for 選擇題 / 閱讀測驗 statistics */
+        #modern-stats-container {
+            width: 100%;
+            max-height: 65vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            padding: 0.25rem;
+        }
+
+        .ms-row {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.6rem;
+            padding: 0.6rem 0.75rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .ms-row-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .ms-q-label {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .ms-q-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #fff;
+            padding: 0.05rem 0.45rem;
+            border-radius: 999px;
+            margin-left: 0.4rem;
+        }
+
+        .ms-q-meta {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .ms-bar-track {
+            position: relative;
+            width: 100%;
+            height: 22px;
+            background: #f1f5f9;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .ms-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            transition: width 0.6s ease;
+            min-width: 2px;
+        }
+
+        .ms-bar-pct {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #fff;
+            padding-right: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .ms-bar-pct-outside {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #475569;
+            padding-left: 0.4rem;
+        }
+
+        .ms-wrong {
+            margin-top: 0.5rem;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            color: #475569;
+        }
+
+        .ms-wrong-label {
+            font-weight: 700;
+            color: #dc2626;
+            margin-right: 0.25rem;
+        }
+
+        .ms-wrong-name {
+            display: inline-block;
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            border-radius: 0.4rem;
+            padding: 0.05rem 0.4rem;
+            margin: 0.1rem 0.2rem 0.1rem 0;
+            font-weight: 600;
+        }
+
+        .ms-wrong-none {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .ms-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1rem;
+            padding: 0.4rem 0.25rem 0;
+            font-size: 0.75rem;
+            color: #475569;
+        }
+
+        .ms-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .ms-legend-swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            display: inline-block;
         }
 
         #chart-svg {
@@ -1820,6 +1959,56 @@
             opacity: 1;
             visibility: visible;
         }
+
+        /* Floating button: 學生加入網址 / QR Code (教師端右上角) */
+        #floating-qr-btn {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        #floating-qr-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+        }
+
+        #floating-qr-btn:active {
+            transform: scale(0.95);
+        }
+
+        #floating-qr-btn .qr-tooltip {
+            position: absolute;
+            right: 66px;
+            background-color: #374151;
+            color: white;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        #floating-qr-btn:hover .qr-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
     <!-- CTP-CSS:START -->
     <style>
@@ -2094,7 +2283,7 @@
                     </button>
 
                     <button id="clear-all-banks-menu-btn"
-                        class="px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-sm font-bold hover:bg-amber-100 transition border border-amber-100 flex items-center"
+                        class="hidden px-4 py-2 bg-amber-50 text-amber-600 rounded-lg text-sm font-bold hover:bg-amber-100 transition border border-amber-100 flex items-center"
                         title="手動清空本教室已儲存的所有題庫">
                         <i class="fas fa-trash-alt mr-2"></i> 清空題庫 🗑️
                     </button>
@@ -2284,6 +2473,11 @@
         <button id="floating-paste-btn" class="hidden" title="從剪貼簿貼上圖片到背景圖片設定">
             <i class="fas fa-paste"></i>
             <span class="paste-tooltip">貼上背景圖片</span>
+        </button>
+
+        <button id="floating-qr-btn" class="hidden" title="顯示學生加入網址與 QR Code">
+            <i class="fas fa-qrcode"></i>
+            <span class="qr-tooltip">學生加入網址 / QR Code</span>
         </button>
 
         <div id="teacher-monitor-view" class="hidden w-full max-w-[95%] mx-auto p-4">
@@ -3150,6 +3344,40 @@ appId: &quot;...&quot;"></textarea>
         </div>
     </div>
 
+    <!-- 學生加入網址 / QR Code Modal（與「生成異機專用網址」相同的網址與 QR） -->
+    <div id="cross-device-url-modal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-[120] flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl p-6 md:p-8 max-w-md w-full my-auto max-h-[90vh] overflow-y-auto text-center">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-qrcode text-blue-500"></i>學生加入網址
+                </h2>
+                <button id="cross-device-url-modal-close-btn"
+                    class="text-gray-400 hover:text-gray-700 text-3xl font-bold leading-none">&times;</button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">學生掃描 QR Code 或開啟下方網址即可加入，免再設定 Firebase。</p>
+
+            <div id="cross-device-qrcode" class="flex justify-center mb-4 min-h-[256px] items-center"></div>
+
+            <div class="flex items-center gap-2 mb-2">
+                <input type="text" id="cross-device-url-input" readonly
+                    class="flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="cross-device-copy-btn"
+                    class="px-3 py-2 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition"
+                    title="複製網址">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+
+            <button id="cross-device-download-qrcode-btn"
+                class="w-full px-4 py-2 mt-2 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition duration-300">
+                <i class="fas fa-download mr-2"></i>下載 QR Code
+            </button>
+
+            <p id="cross-device-msg" class="text-center text-sm text-gray-500 mt-3"></p>
+        </div>
+    </div>
+
     <div id="magnified-image-modal" class="magnified-image-modal hidden">
         <div class="magnified-image-modal-content">
             <button id="magnified-image-modal-close-btn" class="magnified-image-modal-close">×</button>
@@ -3173,6 +3401,7 @@ appId: &quot;...&quot;"></textarea>
             <button id="chart-modal-close-btn" class="magnified-image-modal-close">×</button>
             <h4 id="chart-title" class="text-2xl font-bold mb-4 text-gray-800">作答統計</h4>
             <svg id="chart-svg" width="550" height="400"></svg>
+            <div id="modern-stats-container" class="hidden"></div>
             <div id="students-by-answer-list-container" class="hidden">
                 <h5 id="students-by-answer-list-title"></h5>
                 <p id="students-by-answer-names" class="text-gray-700"></p>
@@ -4362,6 +4591,15 @@ appId: &quot;...&quot;"></textarea>
                     floatingPasteBtn.classList.remove('hidden');
                 } else {
                     floatingPasteBtn.classList.add('hidden');
+                }
+            }
+            // 浮動 QR 按鈕：教師面板（選單與監看）皆可顯示學生加入網址
+            const floatingQrBtn = document.getElementById('floating-qr-btn');
+            if (floatingQrBtn) {
+                if (viewName === 'teacherMenu' || viewName === 'teacherMonitor') {
+                    floatingQrBtn.classList.remove('hidden');
+                } else {
+                    floatingQrBtn.classList.add('hidden');
                 }
             }
         }
@@ -6059,136 +6297,7 @@ appId: &quot;...&quot;"></textarea>
                     const card = document.createElement('div');
                     card.className = 'student-response-item';
 
-                    let answerContentHTML = '';
-
-                    if (student.answer === undefined || student.answer === null) {
-                        answerContentHTML = `<p class="text-gray-400">尚未作答</p>`;
-                    } else if (mode === 'drawing') {
-                        if (String(student.answer).startsWith('data:image')) {
-                            answerContentHTML = `<img src="${student.answer}" alt="${student.name} 的繪圖" class="w-full h-auto rounded-md border max-h-32 object-contain cursor-pointer" data-full-image="${student.answer}"/>`;
-                        } else {
-                            answerContentHTML = `<p class="text-gray-500">繪圖未完成或格式錯誤</p>`;
-                        }
-                    } else if (mode === 'recording') { // New: Handle recording answers
-                        if (String(student.answer).startsWith('data:audio')) {
-                            answerContentHTML = `<audio controls src="${student.answer}" class="w-full"></audio>`;
-                        } else {
-                            answerContentHTML = `<p class="text-gray-500">錄音未完成或格式錯誤</p>`;
-                        }
-                    } else if (mode === 'text_input' || mode === 'word_cloud') {
-                        answerContentHTML = `<p class="text-gray-700 whitespace-pre-wrap">${student.answer || '(空白)'}</p>`;
-                    } else if (mode === 'multiple_choice' && Array.isArray(student.answer) && currentMultipleChoiceQuestions) {
-                        // NEW: Handle custom multiple choice answers
-                        answerContentHTML = `<div class="flex flex-col w-full">`;
-                        student.answer.forEach((qAns, index) => {
-                            const question = currentMultipleChoiceQuestions[qAns.qIndex];
-                            if (question) {
-                                const isCorrect = (String(qAns.ans) === String(question.correctAnswer));
-                                answerContentHTML += `
-                                    <div class="mc-question-answer">
-                                        <i class="icon fas ${isCorrect ? 'fa-check-circle correct-icon' : 'fa-times-circle incorrect-icon'}"></i>
-                                        <span class="question-text">Q${qAns.qIndex + 1}:</span>
-                                        <span class="student-choice">${qAns.ans}</span>
-                                    </div>
-                                `;
-                            }
-                        });
-                        answerContentHTML += `</div>`;
-                    }
-                    else if (mode === 'quick_answer') {
-                        // Handle quick answer results
-                        if (student.answer && student.answer.includes('搶答成功')) {
-                            answerContentHTML = `<div class="text-center">
-                                <i class="fas fa-trophy text-yellow-500 text-4xl mb-2"></i>
-                                <p class="text-xl font-bold text-green-600">搶答成功！</p>
-                                <p class="text-lg text-gray-600">第一名</p>
-                            </div>`;
-                        } else {
-                            answerContentHTML = `<p class="text-gray-500">未搶答或搶答失敗</p>`;
-                        }
-                    }
-                    else if (mode === 'sequencing') {
-                        // Handle sequencing answers
-                        try {
-                            const studentOrder = JSON.parse(student.answer);
-                            const correctOrder = sequencingData.correctOrder;
-                            let isCorrect = true;
-
-                            answerContentHTML = `<div class="flex flex-col w-full gap-1">`;
-                            studentOrder.forEach((item, index) => {
-                                const correct = correctOrder[index] === item;
-                                if (!correct) isCorrect = false;
-                                answerContentHTML += `
-                                    <div class="flex items-center gap-2 text-sm">
-                                        <i class="fas ${correct ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500'}"></i>
-                                        <span class="font-bold">${index + 1}.</span>
-                                        <span>${item}</span>
-                                    </div>
-                                `;
-                            });
-                            answerContentHTML += `</div>`;
-                        } catch (e) {
-                            answerContentHTML = `<p class="text-gray-500">答案格式錯誤</p>`;
-                        }
-                    }
-                    else if (mode === 'matching') {
-                        // Handle matching answers
-                        try {
-                            const studentMatches = JSON.parse(student.answer);
-                            const correctPairs = matchingData.pairs;
-                            let correctCount = 0;
-
-                            answerContentHTML = `<div class="flex flex-col w-full gap-1">`;
-                            studentMatches.forEach(match => {
-                                const correctPair = correctPairs.find(p => p.left === match.left);
-                                const isCorrect = correctPair && correctPair.right === match.right;
-                                if (isCorrect) correctCount++;
-
-                                answerContentHTML += `
-                                    <div class="flex items-center gap-2 text-xs">
-                                        <i class="fas ${isCorrect ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500'}"></i>
-                                        <span>${match.left}</span>
-                                        <i class="fas fa-arrow-right text-gray-400"></i>
-                                        <span>${match.right}</span>
-                                    </div>
-                                `;
-                            });
-                            answerContentHTML += `<div class="text-xs text-gray-600 mt-1">正確: ${correctCount}/${studentMatches.length}</div></div>`;
-                        } catch (e) {
-                            answerContentHTML = `<p class="text-gray-500">答案格式錯誤</p>`;
-                        }
-                    }
-                    else if (mode === 'reading_comprehension') {
-                        // Handle reading comprehension answers
-                        try {
-                            const studentAnswers = JSON.parse(student.answer);
-                            const questions = readingComprehensionData.questions;
-                            let correctCount = 0;
-
-                            answerContentHTML = `<div class="flex flex-col w-full" style="font-size: 10px; gap: 1px;">`;
-                            studentAnswers.forEach((ans, index) => {
-                                if (questions[index]) {
-                                    const isCorrect = (ans === questions[index].correctAnswer);
-                                    if (isCorrect) correctCount++;
-
-                                    answerContentHTML += `
-                                        <div class="flex items-center whitespace-nowrap" style="gap: 4px; line-height: 1.3;">
-                                            <i class="fas ${isCorrect ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500'}" style="font-size: 11px;"></i>
-                                            <span class="font-bold" style="min-width: 22px;">Q${index + 1}</span>
-                                            <span class="text-gray-700" style="min-width: 32px;">答:${ans || '未'}</span>
-                                            ${!isCorrect && ans > 0 ? `<span class="text-gray-500" style="font-size: 9px;">(正確:${questions[index].correctAnswer})</span>` : ''}
-                                        </div>
-                                    `;
-                                }
-                            });
-                            answerContentHTML += `<div class="font-bold mt-1 pt-1 border-t ${correctCount === questions.length ? 'text-green-600' : 'text-gray-700'}" style="font-size: 10px;">正確: ${correctCount}/${questions.length}</div></div>`;
-                        } catch (e) {
-                            answerContentHTML = `<p class="text-gray-500">答案格式錯誤</p>`;
-                        }
-                    }
-                    else { // Default multiple choice (1-4)
-                        answerContentHTML = `<p class="text-2xl font-bold text-blue-600">${student.answer}</p>`;
-                    }
+                    const answerContentHTML = buildResponseAnswerHTML(student, mode, index);
 
                     // Create work ID for starring
                     const workId = `${student.name}-${student.timestamp || index}`;
@@ -6478,6 +6587,11 @@ appId: &quot;...&quot;"></textarea>
         function hideStatisticsModal() {
             statisticsModal.classList.add('hidden');
             chartSvg.selectAll("*").remove();
+            const modernStatsContainer = document.getElementById('modern-stats-container');
+            if (modernStatsContainer) {
+                modernStatsContainer.classList.add('hidden');
+                modernStatsContainer.innerHTML = '';
+            }
             clearStudentsByAnswerList();
         }
 
@@ -7419,6 +7533,16 @@ appId: &quot;...&quot;"></textarea>
             chartSvg.selectAll("*").remove();
             clearStudentsByAnswerList();
 
+            // Default: show the SVG chart, hide the modern HTML chart.
+            // The modern (horizontal) renderers will flip these as needed.
+            const modernStatsContainer = document.getElementById('modern-stats-container');
+            const chartSvgEl = document.getElementById('chart-svg');
+            if (modernStatsContainer) {
+                modernStatsContainer.classList.add('hidden');
+                modernStatsContainer.innerHTML = '';
+            }
+            if (chartSvgEl) chartSvgEl.classList.remove('hidden');
+
             let chartData = {}; // Renamed 'data' to 'chartData'
             const filteredResponses = responses.filter(r => {
                 if (mode === 'true_false' && (r.answer === 'O' || r.answer === 'X')) return true;
@@ -7536,14 +7660,83 @@ appId: &quot;...&quot;"></textarea>
          * @param {Array} responses - All student responses.
          * @param {Array} questions - The custom multiple choice questions.
          */
-        function drawCustomMultipleChoiceBarChart(responses, questions) {
-            const width = +chartSvg.attr("width") - 60;
-            const height = +chartSvg.attr("height") - 60;
-            const margin = { top: 20, right: 20, bottom: 60, left: 40 }; // Increased bottom margin for question labels
+        /**
+         * Returns a bar colour based on the correct-answer rate (red→green).
+         */
+        function modernStatsBarColor(rate) {
+            if (rate >= 80) return '#16a34a';
+            if (rate >= 60) return '#65a30d';
+            if (rate >= 40) return '#f59e0b';
+            return '#ef4444';
+        }
 
+        /**
+         * Renders a modern, left-to-right horizontal bar chart into
+         * #modern-stats-container. Each row shows one question's 答對率 plus the
+         * names of students who answered it incorrectly.
+         * @param {Array} rows - [{ label, tag, correctCount, answeredCount, correctRate, wrongNames }]
+         * @param {Array} [legend] - optional [{ color, text }]
+         */
+        function renderModernStatsChart(rows, legend) {
+            const container = document.getElementById('modern-stats-container');
+            const chartSvgEl = document.getElementById('chart-svg');
+            if (!container) return;
+            if (chartSvgEl) chartSvgEl.classList.add('hidden');
+            container.classList.remove('hidden');
+
+            let html = '';
+            rows.forEach(row => {
+                const rate = row.correctRate;
+                const color = modernStatsBarColor(rate);
+                const pctText = `${rate.toFixed(0)}%`;
+                // Put the percentage inside the bar when wide enough, otherwise outside.
+                const pctInside = rate >= 18;
+                const tagHtml = row.tag
+                    ? `<span class="ms-q-tag" style="background:${row.tag.color}">${escapeHtml(row.tag.text)}</span>`
+                    : '';
+
+                let wrongHtml;
+                if (row.wrongNames.length === 0) {
+                    wrongHtml = `<div class="ms-wrong"><span class="ms-wrong-none"><i class="fas fa-check-circle"></i> 全班答對</span></div>`;
+                } else {
+                    const names = row.wrongNames
+                        .map(n => `<span class="ms-wrong-name">${escapeHtml(n)}</span>`)
+                        .join('');
+                    wrongHtml = `<div class="ms-wrong"><span class="ms-wrong-label">答錯 (${row.wrongNames.length})：</span>${names}</div>`;
+                }
+
+                html += `
+                    <div class="ms-row">
+                        <div class="ms-row-head">
+                            <span class="ms-q-label">${escapeHtml(row.label)}${tagHtml}</span>
+                            <span class="ms-q-meta">答對 ${row.correctCount}/${row.answeredCount}</span>
+                        </div>
+                        <div class="ms-bar-track">
+                            <div class="ms-bar-fill" style="width:${rate}%;background:${color}">
+                                ${pctInside ? `<span class="ms-bar-pct">${pctText}</span>` : ''}
+                            </div>
+                            ${pctInside ? '' : `<span class="ms-bar-pct-outside" style="left:${rate}%">${pctText}</span>`}
+                        </div>
+                        ${wrongHtml}
+                    </div>
+                `;
+            });
+
+            if (legend && legend.length) {
+                const items = legend
+                    .map(l => `<span class="ms-legend-item"><span class="ms-legend-swatch" style="background:${l.color}"></span>${escapeHtml(l.text)}</span>`)
+                    .join('');
+                html += `<div class="ms-legend">${items}</div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function drawCustomMultipleChoiceBarChart(responses, questions) {
             const questionStats = questions.map((q, qIndex) => {
                 let correctCount = 0;
                 let answeredCount = 0; // Count students who attempted this question
+                const wrongNames = [];
 
                 responses.forEach(studentResponse => {
                     if (Array.isArray(studentResponse.answer)) {
@@ -7552,100 +7745,54 @@ appId: &quot;...&quot;"></textarea>
                             answeredCount++;
                             if (String(studentQAnswer.ans) === String(q.correctAnswer)) {
                                 correctCount++;
+                            } else {
+                                wrongNames.push(studentResponse.name || '匿名');
                             }
                         }
                     }
                 });
                 return {
-                    questionIndex: qIndex,
-                    questionText: `Q${qIndex + 1}`, // Display as Q1, Q2 etc.
+                    label: `Q${qIndex + 1}`,
                     correctCount: correctCount,
                     answeredCount: answeredCount,
-                    correctRate: answeredCount > 0 ? (correctCount / answeredCount) * 100 : 0
+                    correctRate: answeredCount > 0 ? (correctCount / answeredCount) * 100 : 0,
+                    wrongNames: wrongNames
                 };
             });
 
-            // Filter out questions with no attempts if desired, or show 0%
             const displayStats = questionStats.filter(s => s.answeredCount > 0);
             if (displayStats.length === 0) {
-                chartSvg.append("text")
-                    .attr("x", chartSvg.attr("width") / 2)
-                    .attr("y", chartSvg.attr("height") / 2)
-                    .attr("text-anchor", "middle")
-                    .style("font-size", "18px")
-                    .style("fill", "#666")
-                    .text("目前沒有學生作答任何自訂選擇題。");
+                const container = document.getElementById('modern-stats-container');
+                const chartSvgEl = document.getElementById('chart-svg');
+                if (chartSvgEl) chartSvgEl.classList.add('hidden');
+                if (container) {
+                    container.classList.remove('hidden');
+                    container.innerHTML = `<p class="text-gray-500 text-center py-8">目前沒有學生作答任何自訂選擇題。</p>`;
+                }
                 return;
             }
 
-            const x = d3.scaleBand()
-                .range([0, width])
-                .padding(0.2)
-                .domain(displayStats.map(d => d.questionText));
-
-            const y = d3.scaleLinear()
-                .range([height, 0])
-                .domain([0, 100]); // Percentage from 0 to 100
-
-            const g = chartSvg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-
-            // X-axis
-            g.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x))
-                .selectAll("text")
-                .attr("transform", "rotate(-45)") // Rotate labels for readability
-                .style("text-anchor", "end");
-
-            // Y-axis
-            g.append("g")
-                .call(d3.axisLeft(y).ticks(10).tickFormat(d => `${d}%`));
-
-            // Bars
-            g.selectAll(".bar")
-                .data(displayStats)
-                .enter().append("rect")
-                .attr("class", "bar")
-                .attr("x", d => x(d.questionText))
-                .attr("y", d => y(d.correctRate))
-                .attr("width", x.bandwidth())
-                .attr("height", d => height - y(d.correctRate))
-                .attr("fill", "#2563eb") // A nice blue color
-                .on("click", (event, d) => displayStudentsForAnswer('correct', 'multiple_choice', d.questionIndex)); // Click to show correct students
-
-            // Labels on bars
-            g.selectAll(".bar-label")
-                .data(displayStats)
-                .enter().append("text")
-                .attr("class", "bar-label")
-                .attr("x", d => x(d.questionText) + x.bandwidth() / 2)
-                .attr("y", d => y(d.correctRate) - 5)
-                .attr("text-anchor", "middle")
-                .style("font-size", "12px")
-                .text(d => `${d.correctRate.toFixed(1)}%`);
-
-            // Y-axis label
-            g.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 0 - margin.left)
-                .attr("x", 0 - (height / 2))
-                .attr("dy", "1em")
-                .style("text-anchor", "middle")
-                .text("答對率 (%)");
+            renderModernStatsChart(displayStats);
         }
 
         /**
          * Draw reading comprehension statistics chart with PIRLS level analysis
          */
         function drawReadingComprehensionChart(responses, questions) {
-            const width = +chartSvg.attr("width") - 60;
-            const height = +chartSvg.attr("height") - 60;
-            const margin = { top: 20, right: 20, bottom: 80, left: 60 };
+            // PIRLS level metadata (used for the per-question tag + legend)
+            const levelColors = {
+                1: '#3b82f6', // Blue - 直接提取
+                2: '#8b5cf6', // Purple - 直接推論
+                3: '#f59e0b', // Amber - 詮釋整合
+                4: '#ef4444'  // Red - 比較評估
+            };
+            const levelTexts = { 1: '直接提取', 2: '直接推論', 3: '詮釋整合', 4: '比較評估' };
 
             // Calculate statistics for each question
             const questionStats = questions.map((q, qIndex) => {
                 let correctCount = 0;
                 let answeredCount = 0;
+                const wrongNames = [];
 
                 responses.forEach(studentResponse => {
                     try {
@@ -7654,6 +7801,8 @@ appId: &quot;...&quot;"></textarea>
                             answeredCount++;
                             if (studentAnswers[qIndex] === q.correctAnswer) {
                                 correctCount++;
+                            } else {
+                                wrongNames.push(studentResponse.name || '匿名');
                             }
                         }
                     } catch (e) {
@@ -7661,129 +7810,38 @@ appId: &quot;...&quot;"></textarea>
                     }
                 });
 
+                const tag = q.level && levelTexts[q.level]
+                    ? { text: `L${q.level} ${levelTexts[q.level]}`, color: levelColors[q.level] }
+                    : null;
+
                 return {
-                    questionIndex: qIndex,
-                    questionText: `Q${qIndex + 1}`,
+                    label: `Q${qIndex + 1}`,
+                    tag: tag,
                     level: q.level,
                     correctCount: correctCount,
                     answeredCount: answeredCount,
-                    correctRate: answeredCount > 0 ? (correctCount / answeredCount) * 100 : 0
+                    correctRate: answeredCount > 0 ? (correctCount / answeredCount) * 100 : 0,
+                    wrongNames: wrongNames
                 };
             });
-
-            // Calculate PIRLS level statistics
-            const levelStats = [1, 2, 3, 4].map(level => {
-                const levelQuestions = questionStats.filter(q => q.level === level);
-                if (levelQuestions.length === 0) return null;
-
-                const totalCorrect = levelQuestions.reduce((sum, q) => sum + q.correctCount, 0);
-                const totalAnswered = levelQuestions.reduce((sum, q) => sum + q.answeredCount, 0);
-
-                return {
-                    level: level,
-                    correctRate: totalAnswered > 0 ? (totalCorrect / totalAnswered) * 100 : 0,
-                    questionCount: levelQuestions.length
-                };
-            }).filter(s => s !== null);
 
             const displayStats = questionStats.filter(s => s.answeredCount > 0);
             if (displayStats.length === 0) {
-                chartSvg.append("text")
-                    .attr("x", chartSvg.attr("width") / 2)
-                    .attr("y", chartSvg.attr("height") / 2)
-                    .attr("text-anchor", "middle")
-                    .style("font-size", "18px")
-                    .style("fill", "#666")
-                    .text("目前沒有學生作答閱讀測驗。");
+                const container = document.getElementById('modern-stats-container');
+                const chartSvgEl = document.getElementById('chart-svg');
+                if (chartSvgEl) chartSvgEl.classList.add('hidden');
+                if (container) {
+                    container.classList.remove('hidden');
+                    container.innerHTML = `<p class="text-gray-500 text-center py-8">目前沒有學生作答閱讀測驗。</p>`;
+                }
                 return;
             }
 
-            const x = d3.scaleBand()
-                .range([0, width])
-                .padding(0.2)
-                .domain(displayStats.map(d => d.questionText));
+            // Build a PIRLS-level legend from the levels actually present.
+            const presentLevels = [1, 2, 3, 4].filter(lv => displayStats.some(s => s.level === lv));
+            const legend = presentLevels.map(lv => ({ color: levelColors[lv], text: `L${lv} ${levelTexts[lv]}` }));
 
-            const y = d3.scaleLinear()
-                .range([height, 0])
-                .domain([0, 100]);
-
-            const g = chartSvg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-
-            // Define colors for each PIRLS level
-            const levelColors = {
-                1: '#3b82f6', // Blue - 直接提取
-                2: '#8b5cf6', // Purple - 直接推論
-                3: '#f59e0b', // Amber - 詮釋整合
-                4: '#ef4444'  // Red - 比較評估
-            };
-
-            // X-axis
-            g.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x))
-                .selectAll("text")
-                .attr("transform", "rotate(-45)")
-                .style("text-anchor", "end");
-
-            // Y-axis
-            g.append("g")
-                .call(d3.axisLeft(y).ticks(10).tickFormat(d => `${d}%`));
-
-            // Bars
-            g.selectAll(".bar")
-                .data(displayStats)
-                .enter().append("rect")
-                .attr("class", "bar")
-                .attr("x", d => x(d.questionText))
-                .attr("y", d => y(d.correctRate))
-                .attr("width", x.bandwidth())
-                .attr("height", d => height - y(d.correctRate))
-                .attr("fill", d => levelColors[d.level])
-                .style("cursor", "pointer");
-
-            // Labels on bars
-            g.selectAll(".bar-label")
-                .data(displayStats)
-                .enter().append("text")
-                .attr("class", "bar-label")
-                .attr("x", d => x(d.questionText) + x.bandwidth() / 2)
-                .attr("y", d => y(d.correctRate) - 5)
-                .attr("text-anchor", "middle")
-                .style("font-size", "12px")
-                .text(d => `${d.correctRate.toFixed(1)}%`);
-
-            // Y-axis label
-            g.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 0 - margin.left)
-                .attr("x", 0 - (height / 2))
-                .attr("dy", "1em")
-                .style("text-anchor", "middle")
-                .text("答對率 (%)");
-
-            // PIRLS Level Legend and Statistics
-            const legendY = height + 50;
-            const levelIcons = ['📖', '💭', '🔗', '⚖️'];
-            const levelTexts = ['直接提取', '直接推論', '詮釋整合', '比較評估'];
-
-            levelStats.forEach((stat, i) => {
-                const legendX = i * 140;
-
-                // Color box
-                g.append("rect")
-                    .attr("x", legendX)
-                    .attr("y", legendY)
-                    .attr("width", 15)
-                    .attr("height", 15)
-                    .attr("fill", levelColors[stat.level]);
-
-                // Text
-                g.append("text")
-                    .attr("x", legendX + 20)
-                    .attr("y", legendY + 12)
-                    .style("font-size", "11px")
-                    .text(`${levelIcons[i]} L${stat.level}: ${stat.correctRate.toFixed(1)}%`);
-            });
+            renderModernStatsChart(displayStats, legend);
         }
 
 
@@ -10804,6 +10862,29 @@ appId: &quot;...&quot;"></textarea>
                 }
             });
 
+            // Floating QR button: 學生加入網址 / QR Code
+            document.getElementById('floating-qr-btn').addEventListener('click', showCrossDeviceUrlModal);
+            document.getElementById('cross-device-url-modal-close-btn').addEventListener('click', hideCrossDeviceUrlModal);
+            document.getElementById('cross-device-url-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('cross-device-url-modal')) hideCrossDeviceUrlModal();
+            });
+            document.getElementById('cross-device-download-qrcode-btn').addEventListener('click', downloadCrossDeviceQRCode);
+            document.getElementById('cross-device-copy-btn').addEventListener('click', async () => {
+                const urlInput = document.getElementById('cross-device-url-input');
+                const msg = document.getElementById('cross-device-msg');
+                if (!urlInput.value) return;
+                try {
+                    await navigator.clipboard.writeText(urlInput.value);
+                } catch (e) {
+                    urlInput.select();
+                    document.execCommand('copy');
+                }
+                if (msg) {
+                    msg.textContent = '網址已複製到剪貼簿！';
+                    msg.className = 'text-center text-sm text-green-600 mt-3';
+                }
+            });
+
             // Modal close buttons.
             document.getElementById('student-status-area').addEventListener('click', showStudentListModal);
             studentListModalCloseBtn.addEventListener('click', hideStudentListModal);
@@ -11560,6 +11641,9 @@ ${textResponses.join('\n\n')}`;
 
             // NEW: Student side custom multiple choice submission
             document.getElementById('submit-custom-mc-btn').addEventListener('click', async (e) => {
+                // Capture a stable reference: e.currentTarget becomes null after the first await.
+                const submitBtn = e.currentTarget;
+
                 // NEW: Check pause state before submitting
                 if (isResponsePaused) {
                     showMessage('老師已暫停回覆，無法送出答案。', 'error');
@@ -11594,14 +11678,19 @@ ${textResponses.join('\n\n')}`;
                 await submitAnswer(studentAnswers);
 
                 // NEW: 更新UI顯示已提交狀態
-                e.currentTarget.disabled = true;
-                e.currentTarget.classList.replace('btn-primary', 'btn-gray');
-                e.currentTarget.textContent = '已提交答案 ✓';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.replace('btn-primary', 'btn-gray');
+                    submitBtn.textContent = '已提交答案 ✓';
+                }
 
                 // Disable all radio buttons after submission
                 document.querySelectorAll('#custom-mc-questions-container input[type="radio"]').forEach(radio => {
                     radio.disabled = true;
                 });
+
+                // NEW: 於學生端顯示逐題題目與答對／答錯情形
+                showCustomMCResult(currentMultipleChoiceQuestions, studentAnswers);
             });
         }
 
@@ -11704,8 +11793,19 @@ ${textResponses.join('\n\n')}`;
                     submitCustomMcBtn.classList.replace('btn-primary', 'btn-gray');
                     submitCustomMcBtn.textContent = '已提交答案 ✓';
 
-                    // 顯示已提交的答案
-                    await displaySubmittedAnswers();
+                    // 顯示逐題題目與答對／答錯情形
+                    try {
+                        const studentRef = doc(db, 'artifacts', baseAppId, 'public', 'data', 'classrooms', classroomCode, 'studentResponses', studentName);
+                        const docSnap = await getDoc(studentRef);
+                        if (docSnap.exists() && Array.isArray(docSnap.data().answer)) {
+                            showCustomMCResult(questions, docSnap.data().answer);
+                        } else {
+                            await displaySubmittedAnswers();
+                        }
+                    } catch (err) {
+                        console.error('載入作答結果失敗:', err);
+                        await displaySubmittedAnswers();
+                    }
                 }
             } else {
                 defaultMcOptions.classList.remove('hidden');
@@ -11758,6 +11858,63 @@ ${textResponses.join('\n\n')}`;
             } catch (error) {
                 console.error('載入已提交答案失敗:', error);
             }
+        }
+
+        /**
+         * NEW: 學生送出選擇題後，於學生端顯示逐題題目與答對／答錯情形。
+         * @param {Array} questions - 題目（含 correctAnswer）。
+         * @param {Array} studentAnswers - [{ qIndex, ans }]。
+         */
+        function showCustomMCResult(questions, studentAnswers) {
+            const container = document.getElementById('custom-mc-questions-container');
+            if (!container || !questions || questions.length === 0) return;
+
+            const ansMap = {};
+            (studentAnswers || []).forEach(a => { ansMap[a.qIndex] = String(a.ans); });
+
+            const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
+            let correctCount = 0;
+            let body = '';
+
+            questions.forEach((q, qIndex) => {
+                const studentAns = Object.prototype.hasOwnProperty.call(ansMap, qIndex) ? ansMap[qIndex] : '';
+                const correctAns = String(q.correctAnswer);
+                const isCorrect = studentAns === correctAns;
+                if (isCorrect) correctCount++;
+
+                body += `
+                    <div class="mc-question-item bg-white p-4 rounded-lg shadow-md">
+                        <div class="flex items-start justify-between mb-3 gap-2">
+                            <p class="font-bold text-lg text-gray-800 flex-1">Q${qIndex + 1}. ${q.questionText}</p>
+                            <span class="flex-shrink-0 px-3 py-1 rounded-full text-sm font-bold ${isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                                ${isCorrect ? '<i class="fas fa-check mr-1"></i>答對' : '<i class="fas fa-times mr-1"></i>答錯'}
+                            </span>
+                        </div>
+                        <div class="space-y-2">
+                            ${q.options.map((option, optIndex) => {
+                    const val = String(optIndex + 1);
+                    const isStudent = studentAns === val;
+                    const isAnswer = correctAns === val;
+                    let cls = 'flex items-center p-2 border-2 rounded-md ';
+                    let tail = '';
+                    if (isAnswer) { cls += 'border-green-400 bg-green-50'; tail = '<i class="fas fa-check-circle text-green-600 ml-auto"></i>'; }
+                    else if (isStudent) { cls += 'border-red-400 bg-red-50'; tail = '<i class="fas fa-times-circle text-red-500 ml-auto"></i>'; }
+                    else { cls += 'border-gray-200'; }
+                    return `<div class="${cls}"><span class="text-gray-700"><span class="font-bold text-blue-600">${labels[optIndex]}.</span> ${option}</span>${isStudent ? '<span class="ml-2 text-xs text-gray-500 whitespace-nowrap">(你的答案)</span>' : ''}${tail}</div>`;
+                }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            const total = questions.length;
+            const summary = `
+                <div class="bg-white p-4 rounded-lg shadow-md text-center border-2 ${correctCount === total ? 'border-green-300' : 'border-blue-200'}">
+                    <p class="text-xl font-bold ${correctCount === total ? 'text-green-600' : 'text-blue-700'}"><i class="fas fa-clipboard-check mr-2"></i>答對 ${correctCount} / ${total} 題</p>
+                </div>
+            `;
+
+            container.innerHTML = summary + body;
         }
 
 
@@ -12394,6 +12551,131 @@ ${textResponses.join('\n\n')}`;
         /**
          * Refresh the student responses display with current sort and filter settings.
          */
+        /**
+         * Builds the inner answer HTML for a single student response card.
+         * Shared by the live onSnapshot render and the manual re-render
+         * (e.g. when the teacher clicks 按姓名 / 按時間), so every mode keeps
+         * its full formatting (including per-question 對/錯 marks for 選擇題
+         * 與閱讀測驗).
+         */
+        function buildResponseAnswerHTML(student, mode, index) {
+            let answerContentHTML = '';
+
+            if (student.answer === undefined || student.answer === null) {
+                answerContentHTML = `<p class="text-gray-400">尚未作答</p>`;
+            } else if (mode === 'drawing') {
+                if (String(student.answer).startsWith('data:image')) {
+                    answerContentHTML = `<img src="${student.answer}" alt="${student.name} 的繪圖" class="w-full h-auto rounded-md border max-h-32 object-contain cursor-pointer" data-full-image="${student.answer}"/>`;
+                } else {
+                    answerContentHTML = `<p class="text-gray-500">繪圖未完成或格式錯誤</p>`;
+                }
+            } else if (mode === 'recording') {
+                if (String(student.answer).startsWith('data:audio')) {
+                    answerContentHTML = `<audio controls src="${student.answer}" class="w-full"></audio>`;
+                } else {
+                    answerContentHTML = `<p class="text-gray-500">錄音未完成或格式錯誤</p>`;
+                }
+            } else if (mode === 'text_input' || mode === 'word_cloud') {
+                answerContentHTML = `<p class="text-gray-700 whitespace-pre-wrap">${student.answer || '(空白)'}</p>`;
+            } else if (mode === 'multiple_choice' && Array.isArray(student.answer) && currentMultipleChoiceQuestions) {
+                answerContentHTML = `<div class="flex flex-col w-full">`;
+                student.answer.forEach((qAns) => {
+                    const question = currentMultipleChoiceQuestions[qAns.qIndex];
+                    if (question) {
+                        const isCorrect = (String(qAns.ans) === String(question.correctAnswer));
+                        answerContentHTML += `
+                            <div class="mc-question-answer">
+                                <i class="icon fas ${isCorrect ? 'fa-check-circle correct-icon' : 'fa-times-circle incorrect-icon'}"></i>
+                                <span class="question-text">Q${qAns.qIndex + 1}:</span>
+                                <span class="student-choice">${qAns.ans}</span>
+                            </div>
+                        `;
+                    }
+                });
+                answerContentHTML += `</div>`;
+            } else if (mode === 'quick_answer') {
+                if (student.answer && student.answer.includes('搶答成功')) {
+                    answerContentHTML = `<div class="text-center">
+                        <i class="fas fa-trophy text-yellow-500 text-4xl mb-2"></i>
+                        <p class="text-xl font-bold text-green-600">搶答成功！</p>
+                        <p class="text-lg text-gray-600">第一名</p>
+                    </div>`;
+                } else {
+                    answerContentHTML = `<p class="text-gray-500">未搶答或搶答失敗</p>`;
+                }
+            } else if (mode === 'sequencing') {
+                try {
+                    const studentOrder = JSON.parse(student.answer);
+                    const correctOrder = sequencingData.correctOrder;
+                    answerContentHTML = `<div class="flex flex-col w-full gap-1">`;
+                    studentOrder.forEach((item, idx) => {
+                        const correct = correctOrder[idx] === item;
+                        answerContentHTML += `
+                            <div class="flex items-center gap-2 text-sm">
+                                <i class="fas ${correct ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500'}"></i>
+                                <span class="font-bold">${idx + 1}.</span>
+                                <span>${item}</span>
+                            </div>
+                        `;
+                    });
+                    answerContentHTML += `</div>`;
+                } catch (e) {
+                    answerContentHTML = `<p class="text-gray-500">答案格式錯誤</p>`;
+                }
+            } else if (mode === 'matching') {
+                try {
+                    const studentMatches = JSON.parse(student.answer);
+                    const correctPairs = matchingData.pairs;
+                    let correctCount = 0;
+                    answerContentHTML = `<div class="flex flex-col w-full gap-1">`;
+                    studentMatches.forEach(match => {
+                        const correctPair = correctPairs.find(p => p.left === match.left);
+                        const isCorrect = correctPair && correctPair.right === match.right;
+                        if (isCorrect) correctCount++;
+                        answerContentHTML += `
+                            <div class="flex items-center gap-2 text-xs">
+                                <i class="fas ${isCorrect ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500'}"></i>
+                                <span>${match.left}</span>
+                                <i class="fas fa-arrow-right text-gray-400"></i>
+                                <span>${match.right}</span>
+                            </div>
+                        `;
+                    });
+                    answerContentHTML += `<div class="text-xs text-gray-600 mt-1">正確: ${correctCount}/${studentMatches.length}</div></div>`;
+                } catch (e) {
+                    answerContentHTML = `<p class="text-gray-500">答案格式錯誤</p>`;
+                }
+            } else if (mode === 'reading_comprehension') {
+                try {
+                    const studentAnswers = JSON.parse(student.answer);
+                    const questions = readingComprehensionData.questions;
+                    let correctCount = 0;
+                    answerContentHTML = `<div class="flex flex-col w-full" style="font-size: 10px; gap: 1px;">`;
+                    studentAnswers.forEach((ans, idx) => {
+                        if (questions[idx]) {
+                            const isCorrect = (ans === questions[idx].correctAnswer);
+                            if (isCorrect) correctCount++;
+                            answerContentHTML += `
+                                <div class="flex items-center whitespace-nowrap" style="gap: 4px; line-height: 1.3;">
+                                    <i class="fas ${isCorrect ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500'}" style="font-size: 11px;"></i>
+                                    <span class="font-bold" style="min-width: 22px;">Q${idx + 1}</span>
+                                    <span class="text-gray-700" style="min-width: 32px;">答:${ans || '未'}</span>
+                                    ${!isCorrect && ans > 0 ? `<span class="text-gray-500" style="font-size: 9px;">(正確:${questions[idx].correctAnswer})</span>` : ''}
+                                </div>
+                            `;
+                        }
+                    });
+                    answerContentHTML += `<div class="font-bold mt-1 pt-1 border-t ${correctCount === questions.length ? 'text-green-600' : 'text-gray-700'}" style="font-size: 10px;">正確: ${correctCount}/${questions.length}</div></div>`;
+                } catch (e) {
+                    answerContentHTML = `<p class="text-gray-500">答案格式錯誤</p>`;
+                }
+            } else {
+                answerContentHTML = `<p class="text-2xl font-bold text-blue-600">${student.answer}</p>`;
+            }
+
+            return answerContentHTML;
+        }
+
         function refreshStudentResponsesDisplay() {
             if (!currentInteractionMode || allStudentResponses.length === 0) return;
 
@@ -12449,20 +12731,9 @@ ${textResponses.join('\n\n')}`;
                 const card = document.createElement('div');
                 card.className = 'student-response-item';
 
-                let answerContentHTML = '';
-
-                // Simplified rendering for common modes
-                if (mode === 'drawing') {
-                    if (String(student.answer).startsWith('data:image')) {
-                        answerContentHTML = `<img src="${student.answer}" alt="${student.name} 的繪圖" class="w-full h-auto rounded-md border max-h-32 object-contain cursor-pointer" data-full-image="${student.answer}"/>`;
-                    } else {
-                        answerContentHTML = `<p class="text-gray-500">繪圖未完成或格式錯誤</p>`;
-                    }
-                } else if (mode === 'text_input') {
-                    answerContentHTML = `<p class="text-gray-700 whitespace-pre-wrap">${student.answer || '(空白)'}</p>`;
-                } else {
-                    answerContentHTML = `<p class="text-gray-700">${student.answer || '未作答'}</p>`;
-                }
+                // Use the shared renderer so every mode (including 選擇題與閱讀測驗
+                // 的逐題對/錯) keeps its full formatting after sorting.
+                const answerContentHTML = buildResponseAnswerHTML(student, mode, index);
 
                 const workId = `${student.name}-${student.timestamp || index}`;
                 const isStarred = starredWorks.has(workId);
@@ -13084,6 +13355,129 @@ ${textResponses.join('\n\n')}`;
             } catch (error) {
                 console.error('生成 QR Code 失敗:', error);
                 showFirebaseCopyMessage("生成 QR Code 失敗", true);
+            }
+        }
+
+        // --- Floating QR button: 學生加入網址 / QR Code ---
+        let crossDeviceDisplayUrl = ''; // URL currently shown in the floating QR modal
+
+        /**
+         * Returns the active Firebase config string (six-line format) used to
+         * build the cross-device join URL. Mirrors the source priority of the
+         * Firebase loader: textarea → localStorage → live firebaseConfig object.
+         */
+        function getActiveFirebaseConfigString() {
+            const ta = document.getElementById('firebase-config-textarea');
+            const taVal = ta ? ta.value.trim() : '';
+            if (taVal) return taVal;
+
+            const stored = localStorage.getItem('firebaseConfig') || localStorage.getItem('firebaseConfigDraft');
+            if (stored && stored.trim()) return stored.trim();
+
+            // Fallback: reconstruct from the live config object (e.g. hardcoded config)
+            if (typeof firebaseConfig === 'object' && firebaseConfig &&
+                firebaseConfig.apiKey && !String(firebaseConfig.apiKey).toLowerCase().startsWith('demo')) {
+                return ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId']
+                    .filter(k => firebaseConfig[k])
+                    .map(k => `${k}: "${firebaseConfig[k]}"`)
+                    .join(',\n');
+            }
+            return '';
+        }
+
+        /**
+         * Opens the floating modal and shows the same 異機專用網址 + QR Code as
+         * the「生成異機專用網址」button, sourced from the active Firebase config.
+         */
+        async function showCrossDeviceUrlModal() {
+            const modal = document.getElementById('cross-device-url-modal');
+            const urlInput = document.getElementById('cross-device-url-input');
+            const qrContainer = document.getElementById('cross-device-qrcode');
+            const msg = document.getElementById('cross-device-msg');
+
+            modal.classList.remove('hidden');
+            qrContainer.innerHTML = '';
+            urlInput.value = '';
+            crossDeviceDisplayUrl = '';
+            msg.textContent = '正在生成網址，請稍候...';
+            msg.className = 'text-center text-sm text-gray-500 mt-3';
+
+            const configContent = getActiveFirebaseConfigString();
+            if (!configContent) {
+                msg.textContent = '尚未設定 Firebase，無法生成異機網址。請先點右上角「Firebase 設定」完成設定。';
+                msg.className = 'text-center text-sm text-red-500 mt-3';
+                return;
+            }
+
+            try {
+                // Encode identically to handleGenerateFirebaseUrl so the URL decodes correctly.
+                const base64Config = btoa(configContent);
+                const newUrl = `${window.location.origin}${window.location.pathname}?config=${base64Config}&hideFirebaseBtn=true`;
+
+                // Try to shorten; generateShortUrl falls back to the long URL on failure.
+                let displayUrl = newUrl;
+                try {
+                    const shortUrl = await generateShortUrl(newUrl);
+                    if (shortUrl) displayUrl = shortUrl;
+                } catch (e) {
+                    console.warn('短網址生成失敗，改用原始網址:', e);
+                }
+
+                crossDeviceDisplayUrl = displayUrl;
+                urlInput.value = displayUrl;
+
+                // Auto-copy to clipboard
+                try {
+                    await navigator.clipboard.writeText(displayUrl);
+                } catch (e) { /* clipboard may be blocked; user can copy manually */ }
+
+                // Generate QR Code
+                new QRCode(qrContainer, {
+                    text: displayUrl,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                msg.textContent = '網址已複製，請讓學生掃描 QR Code 或開啟上方網址加入。';
+                msg.className = 'text-center text-sm text-green-600 mt-3';
+            } catch (error) {
+                console.error('生成異機網址失敗:', error);
+                msg.textContent = '生成網址失敗，請稍後再試。';
+                msg.className = 'text-center text-sm text-red-500 mt-3';
+            }
+        }
+
+        function hideCrossDeviceUrlModal() {
+            document.getElementById('cross-device-url-modal').classList.add('hidden');
+        }
+
+        function downloadCrossDeviceQRCode() {
+            const qrContainer = document.getElementById('cross-device-qrcode');
+            const canvas = qrContainer.querySelector('canvas');
+            const msg = document.getElementById('cross-device-msg');
+            if (!canvas) {
+                if (msg) {
+                    msg.textContent = '請先生成 QR Code。';
+                    msg.className = 'text-center text-sm text-red-500 mt-3';
+                }
+                return;
+            }
+            try {
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'student-join-qrcode.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                });
+            } catch (error) {
+                console.error('下載 QR Code 失敗:', error);
             }
         }
 
@@ -14257,6 +14651,7 @@ ${textResponses.join('\n\n')}`;
 
             // Determine which answers to restore
             let answersToRestore = [];
+            let readingAlreadySubmitted = false;
 
             // Priority 1: Use current local answers (not yet submitted)
             if (currentReadingAnswers.length > 0) {
@@ -14279,6 +14674,9 @@ ${textResponses.join('\n\n')}`;
                             }
                         } else if (Array.isArray(data.answer)) {
                             answersToRestore = data.answer;
+                        }
+                        if (Array.isArray(answersToRestore) && answersToRestore.length > 0) {
+                            readingAlreadySubmitted = true;
                         }
                         console.log('[displayReadingComprehensionForStudent] Restoring submitted answers:', answersToRestore);
                     }
@@ -14351,6 +14749,13 @@ ${textResponses.join('\n\n')}`;
                     });
                 });
             });
+
+            // NEW: 若學生已送出，改為顯示逐題題目與答對／答錯情形
+            if (readingAlreadySubmitted) {
+                showReadingComprehensionResult(readingData.questions, answersToRestore);
+                const submitBtn = document.getElementById('submit-reading-btn');
+                if (submitBtn) submitBtn.disabled = true;
+            }
         }
 
         /**
@@ -15009,6 +15414,73 @@ ${textResponses.join('\n\n')}`;
         /**
          * Submit reading comprehension answer
          */
+        /**
+         * NEW: 學生送出閱讀測驗後，於學生端顯示逐題題目與答對／答錯情形。
+         * @param {Array} questions - 題目（含 correctAnswer，1-based）。
+         * @param {Array} answers - 學生作答，1-based 選項（0 = 未答）。
+         */
+        function showReadingComprehensionResult(questions, answers) {
+            const questionsContainer = document.getElementById('reading-questions-container');
+            if (!questionsContainer || !questions || questions.length === 0) return;
+
+            const optionLabels = ['A', 'B', 'C', 'D'];
+            let correctCount = 0;
+            let body = '';
+
+            questions.forEach((q, index) => {
+                const studentAns = answers[index] || 0; // 1-based, 0 = 未答
+                const correctAns = q.correctAnswer;
+                const isCorrect = studentAns === correctAns;
+                if (isCorrect) correctCount++;
+
+                const levelBadge = q.level
+                    ? `<span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700">${q.level}</span>`
+                    : '';
+
+                body += `
+                    <div class="question-card">
+                        <div class="flex items-start justify-between mb-3 gap-2">
+                            <p class="font-bold text-lg text-gray-800 flex-1">
+                                <span class="inline-block w-8 h-8 ${isCorrect ? 'bg-green-500' : 'bg-red-500'} text-white rounded-full text-center leading-8 mr-2">${index + 1}</span>
+                                ${q.question}
+                            </p>
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="flex-shrink-0 px-3 py-1 rounded-full text-sm font-bold ${isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                                    ${isCorrect ? '<i class="fas fa-check mr-1"></i>答對' : '<i class="fas fa-times mr-1"></i>答錯'}
+                                </span>
+                                ${levelBadge}
+                            </div>
+                        </div>
+                        <div class="space-y-2 ml-10">
+                            ${q.options.map((opt, i) => {
+                    const val = i + 1;
+                    const isStudent = studentAns === val;
+                    const isAnswer = correctAns === val;
+                    let cls = 'flex items-center p-3 rounded-lg border-2 ';
+                    let tail = '';
+                    if (isAnswer) { cls += 'border-green-400 bg-green-50'; tail = '<i class="fas fa-check-circle text-green-600 ml-auto"></i>'; }
+                    else if (isStudent) { cls += 'border-red-400 bg-red-50'; tail = '<i class="fas fa-times-circle text-red-500 ml-auto"></i>'; }
+                    else { cls += 'border-transparent'; }
+                    return `<div class="${cls}"><span class="font-medium text-gray-700"><span class="font-bold text-green-600">${optionLabels[i]}.</span> ${opt}</span>${isStudent ? '<span class="ml-2 text-xs text-gray-500 whitespace-nowrap">(你的答案)</span>' : ''}${tail}</div>`;
+                }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            const total = questions.length;
+            const summary = `
+                <div class="question-card text-center border-2 ${correctCount === total ? 'border-green-300' : 'border-blue-200'}">
+                    <p class="text-xl font-bold ${correctCount === total ? 'text-green-600' : 'text-blue-700'}"><i class="fas fa-clipboard-check mr-2"></i>答對 ${correctCount} / ${total} 題</p>
+                </div>
+            `;
+
+            questionsContainer.innerHTML = summary + body;
+
+            const submitBtn = document.getElementById('submit-reading-btn');
+            if (submitBtn) submitBtn.disabled = true;
+        }
+
         async function submitReadingAnswer() {
             const questionsContainer = document.getElementById('reading-questions-container');
             const answers = [];
@@ -15031,6 +15503,9 @@ ${textResponses.join('\n\n')}`;
             await submitAnswer(JSON.stringify(answers));
             showMessage('答案已提交！', 'success');
             document.getElementById('submit-reading-btn').disabled = true;
+
+            // NEW: 於學生端顯示逐題題目與答對／答錯情形
+            showReadingComprehensionResult(readingComprehensionData.questions, answers);
 
             // Clear local answers after successful submission
             currentReadingAnswers = [];
